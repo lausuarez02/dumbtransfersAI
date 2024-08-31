@@ -1,14 +1,12 @@
 // pages/api/get-wallet-balance.ts
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY; // Store this in your .env file
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  const { address } = req.body;
+export async function GET(req: Request) {
+  const { address } = await req.json();
 
   if (!address) {
-    return new Response.json({ error: 'Wallet address is required' });
+    return Response.json({ error: 'Wallet address is required' });
   }
 
   try {
@@ -21,11 +19,11 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
     if (data.status === '1') {
       // Convert balance from wei to Ether
       const balanceInEther = parseFloat(data.result) / 10 ** 18;
-      return new Response.json({ balance: balanceInEther });
+      return Response.json({ balance: balanceInEther });
     } else {
-        return new Response.json({ error: 'Failed to fetch balance' });
+        return Response.json({ error: 'Failed to fetch balance' });
     }
   } catch (error) {
-    return new Response.json({ error: 'Internal server error' });
+    return Response.json({ error: 'Internal server error' });
   }
 }
