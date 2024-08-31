@@ -45,6 +45,9 @@ export async function POST(request: Request) {
       // Get the seed of the wallet
       const seed = seedFile[walletId]?.seed;
 
+      console.log(`check the seed =${seed}` )
+      console.log(`check the walletId =${walletId}` )
+
       // Import the wallet
       userWallet = await user?.importWallet({ seed, walletId });
       await userWallet.listAddresses();
@@ -57,6 +60,7 @@ export async function POST(request: Request) {
   } else {
     // Otherwise, create a new wallet
     userWallet = await user?.createWallet();
+    console.log(`check the userWallet=${userWallet}`)
     try {
       // Request funds from the faucet if it's available
       await userWallet?.faucet();

@@ -1,8 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
-import { Navigation } from "@/components/Navigation";
+// import { Navigation } from "@/components/Navigation";
 
 const ChatScreen = dynamic(() => import("@/components/ChatScreen"), {
+  ssr: false,
+});
+const DumbTransfersAIMainPage = dynamic(() => import("@/components/MainPage"), {
   ssr: false,
 });
 const WalletProviders = dynamic(() => import("@/components/WalletProviders"), {
@@ -15,9 +18,10 @@ export default function Home() {
 
   return (
     <main>
-      <Navigation />
+      {/* <Navigation /> */}
       <WalletProviders>
-        <ChatScreen showImageRanking={isImageRanking} />
+        {/* <ChatScreen showImageRanking={isImageRanking} /> */}
+        <DumbTransfersAIMainPage/>
       </WalletProviders>
     </main>
   );
