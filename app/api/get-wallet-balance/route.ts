@@ -1,11 +1,9 @@
 // pages/api/get-wallet-balance.ts
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY; // Store this in your .env file
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  const { address } = req.body;
+export async function GET(req: Request) {
+  const { address } = await req.json();
 
   if (!address) {
     return new Response.json({ error: 'Wallet address is required' });
