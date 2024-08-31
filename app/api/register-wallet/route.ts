@@ -110,7 +110,7 @@ if (existingUser) {
       }),
       { status: 200 }
     );
-  } catch (e) {
+  } catch (e:any) {
     await session.abortTransaction();
     console.error("Error during wallet creation or user registration:", e);
     return Response.json(

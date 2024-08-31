@@ -3,11 +3,10 @@ import { baseSepolia, base } from "wagmi/chains";
 import { metaMask, coinbaseWallet } from 'wagmi/connectors';
 
 export const config = createConfig({
-  autoConnect: true, // Automatically connect if a wallet is already connected
   chains: [baseSepolia, base],
   connectors: [
-    () => metaMask(),
-    () => coinbaseWallet({
+    metaMask(),
+    coinbaseWallet({
       appName: 'AI Feedback Tool',
       preference: 'smartWalletOnly',
     }),

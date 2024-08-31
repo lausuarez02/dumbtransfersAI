@@ -205,7 +205,7 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (e) {
+  } catch (e:any) {
     console.error("Error creating transfer:", e);
     return Response.json({ message: "Failed to create transfer", error: e.message }, { status: 500 });
   }

@@ -40,7 +40,7 @@ export async function transactionAssistant(userMessage: string): Promise<any> {
       console.error(e)
     }
   }
-  
+
   export async function extractTransactionDetails(userMessage: string): Promise<any> {
   const messages = [
     {
@@ -56,7 +56,7 @@ export async function transactionAssistant(userMessage: string): Promise<any> {
       messages,
     });
 
-    const assistantMessage = response.choices[0]?.message?.content;
+    const assistantMessage:any = response.choices[0]?.message?.content;
     const extractedData = JSON.parse(assistantMessage);
 
     return extractedData;
