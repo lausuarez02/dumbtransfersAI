@@ -1,6 +1,6 @@
 import { Coinbase } from "@coinbase/coinbase-sdk";
 // import { connectToDatabase } from "@/lib/mongodb";
-import { getRandomItems } from "@/utils/random";
+import { getRandomItems } from "@/app/utils/random";
 import mongoose from 'mongoose';
 
 export async function POST(request: Request) {

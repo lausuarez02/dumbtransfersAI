@@ -1,6 +1,7 @@
 import React from 'react';
 import FuturisticButton  from './FuturisticButton';
 import { ArrowRight, Zap, Shield, Globe } from 'lucide-react';
+import Link from 'next/link';
 
 const LandingPage = () => {
   return (
@@ -19,10 +20,11 @@ const LandingPage = () => {
           Send cryptocurrency effortlessly using simple commands.
           Let AI handle the complexities while you focus on what matters.
         </p>
+        <Link href="/chat">
         <FuturisticButton className="text-lg px-8 py-3">
           Get Started <ArrowRight className="ml-2" size={20} />
         </FuturisticButton>
-
+        </Link>
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full">
           {[
             { icon: Zap, title: "Lightning Fast", desc: "Instant transfers powered by AI" },
