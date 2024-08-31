@@ -110,6 +110,12 @@ export default function ChatScreen({
   return (
     <div ref={containerRef} className="overflow-y-auto max-h-screen">
       <div className=" pb-10 mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-7 flex flex-col">
+        <Confetti
+          width={width}
+          height={height}
+          tweenDuration={2000}
+          run={isSuccessRequest}
+        />
         <ChatEntry>
           <div className="text-sm font-normal text-gray-900 dark:text-white">
             Turbocharge your machine learning with AI wallets: now, you can

@@ -1,4 +1,5 @@
 "use client";
+import LandingPage from "@/components/Landing";
 import dynamic from "next/dynamic";
 // import { Navigation } from "@/components/Navigation";
 
@@ -21,7 +22,7 @@ export default function Home() {
       {/* <Navigation /> */}
       <WalletProviders>
         {/* <ChatScreen showImageRanking={isImageRanking} /> */}
-        <DumbTransfersAIMainPage/>
+        <LandingPage/>
       </WalletProviders>
     </main>
   );
