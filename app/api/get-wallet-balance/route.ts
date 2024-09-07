@@ -1,6 +1,8 @@
 // pages/api/get-wallet-balance.ts
 const etherscanApiKey = process.env.BASESCAN_API_KEY; // Store this in your .env file
 const usdcContractAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+const usdcContractAddressSeploia = "0x5dEaC602762362FE5f135FA5904351916053cF70"
+
 // export async function POST(req: Request) {
 //   const {address}  = await req.json();
 
@@ -37,8 +39,11 @@ export async function POST(req: Request) {
   
     try {
       // Fetch USDC balance from Etherscan (or Blockscan for Base)
+      // const response = await fetch(
+      //   `https://api.basescan.org/api?module=account&action=tokenbalance&contractaddress=${usdcContractAddress}&address=${address}&tag=latest&apikey=${etherscanApiKey}`
+      // );
       const response = await fetch(
-        `https://api.basescan.org/api?module=account&action=tokenbalance&contractaddress=${usdcContractAddress}&address=${address}&tag=latest&apikey=${etherscanApiKey}`
+        `https://api-sepolia.basescan.org/api?module=account&action=tokenbalance&contractaddress=${usdcContractAddressSeploia}&address=${address}&tag=latest&apikey=${etherscanApiKey}`
       );
       const data = await response.json();
   
