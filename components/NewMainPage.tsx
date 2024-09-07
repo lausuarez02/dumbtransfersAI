@@ -19,6 +19,7 @@ import { ClipboardIcon } from '@heroicons/react/24/outline';
 import { config } from '@/app/config';
 import FullScreenTopUpModal from './FullScreenTopUpModal';
 import Image from 'next/image';
+import { FaTimes, FaDollarSign, FaPaperclip, FaSmile } from 'react-icons/fa';
 
 const DumbTransfersAIMainPage = () => {
   const [inputValue, setInputValue] = useState('');
@@ -243,133 +244,197 @@ const hash = await writeContract(config,{
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-      <header className="p-4 border-b border-gray-700 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
-          DumbTransfersAI
-        </h1>
-        <div className='bg-gradient-to-br from-gray-900 to-gray-800 text-white'>
-      {address ? (
-        <div className="relative flex items-center gap-2 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-          <button
-            onClick={toggleDropdown}
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
-          >
-            Wallet Info
+    <div className="flex h-screen bg-white text-black">
+      {/* Left Sidebar for Previous Chats */}
+      <aside className="w-1/4 bg-gray-100 border-r border-gray-300 p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold">Chats</h2>
+          <button className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg">
+            New Chat
           </button>
-          {isDropdownOpen && (
-            <div className="absolute top-full mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg p-4 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">
-                  Connected: {truncateAddress(address)}
-                </span>
-                <ClipboardIcon
-                  className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
-                  onClick={() => copyToClipboard(address)}
-                />
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-sm">
-                  MPC address: {truncateAddress(mpcWallet)}
-                </span>
-                <ClipboardIcon
-                  className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
-                  onClick={() => copyToClipboard(mpcWallet)}
-                />
-              </div>
-            </div>
-          )}
+        </div>
+        <ul className="space-y-4">
+          <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Andres</li>
+          <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Mom</li>
+          <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Bills</li>
+        </ul>
+      </aside>
 
-          <button
-            onClick={() => disconnect()}
-            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
-          >
-            Logout
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => connect({ connector: injected() })}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
-        >
-          Connect Wallet
-        </button>
-      )}
-    </div>
-      </header>
-      {/* Second Header */}
-      {address && (
-        <div className="p-4 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
-              <div className="flex items-center space-x-2">
-      <span className="font-medium">Balance:</span>
-      {balance !== null ? (
-        <div className="flex items-center space-x-1">
-           <Image
-            alt="USDC"
-            src="https://basescan.org/token/images/centre-usdc_28.png"
-            width="20"
-            height="20"
-          />
-          <span>{`${balance}`}</span>
-        </div>
-      ) : (
-        'Loading...'
-      )}
-    </div>
-          {/* <div className="text-lg font-medium">
-            Balance: {balance !== null ? (<>{`${balance}` }<Image alt="" src="https://basescan.org/token/images/centre-usdc_28.png" width="20" height="20"/> </>): 'Loading...'}
-           
-          </div> */}
-          <div>
+      {/* Main Chat Area */}
+      <div className="flex-grow flex flex-col">
+        <header className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-600">
+            DumbTransfers
+          </h1>
+          <div className="bg-white text-black">
+            {address ? (
+              <div className="relative flex items-center gap-2">
+                <button
+                  onClick={toggleDropdown}
+                  className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+                >
+                  Wallet Info
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute top-full mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Connected: {truncateAddress(address)}</span>
+                      <ClipboardIcon
+                        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
+                        onClick={() => copyToClipboard(address)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm">MPC address: {truncateAddress(mpcWallet)}</span>
+                      <ClipboardIcon
+                        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
+                        onClick={() => copyToClipboard(mpcWallet)}
+                      />
+                    </div>
+                  </div>
+                )}
+                <button
+                  onClick={() => disconnect()}
+                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => connect({ connector: injected() })}
+                className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+              >
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </header>
+
+        {/* Second Header */}
+        {address && (
+          <div className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Balance:</span>
+              {balance !== null ? (
+                <div className="flex items-center space-x-1">
+                  <Image
+                    alt="USDC"
+                    src="https://basescan.org/token/images/centre-usdc_28.png"
+                    width="20"
+                    height="20"
+                  />
+                  <span>{`${balance}`}</span>
+                </div>
+              ) : (
+                'Loading...'
+              )}
+            </div>
             <button
-            onClick={handleModal}
-            // onClick={() => handleTopUp()}
-            //   onClick={() => handleTopUp()
-            //     }
-              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg"
+              onClick={handleModal}
+              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white"
             >
               Top Up
             </button>
           </div>
-        </div>
-      )}
- <main className="flex-grow overflow-y-auto p-4 pb-20">
+        )}
+
+        {/* Chat Messages */}
+        {/* <main className="flex-grow overflow-y-auto p-4 pb-20">
+          <div className="space-y-4">
+            {messages.map((message: any, index: any) => (
+              <div
+                key={index}
+                className={`p-3 rounded-lg max-w-[80%] break-words ${
+                  message.isUser
+                    ? 'ml-auto bg-gray-200 bg-opacity-50 backdrop-blur-sm'
+                    : 'mr-auto bg-purple-500 bg-opacity-50 backdrop-blur-sm'
+                }`}
+              >
+                {message.text}
+                {message.transactionLink ? (
+                  <div className="break-words">
+                    Transaction Link: {message.transactionLink}
+                  </div>
+                ) : null}
+              </div>
+            ))}
+            {isLoading && <LoadingIcon />}
+          </div>
+          {isOpenModal && <FullScreenTopUpModal isOpen={isOpen} toggleModal={toggleModal} />}
+        </main> */}
+
+<main className="flex-grow overflow-y-auto p-4 pb-20">
   <div className="space-y-4">
     {messages.map((message: any, index: any) => (
       <div
         key={index}
-        className={`p-3 rounded-lg max-w-[80%] break-words ${
-          message.isUser
-            ? 'ml-auto bg-blue-600 bg-opacity-50 backdrop-blur-sm'
-            : 'mr-auto bg-purple-600 bg-opacity-50 backdrop-blur-sm'
+        className={`flex items-start max-w-[80%] ${
+          message.isUser ? 'ml-auto flex-row-reverse' : 'mr-auto'
         }`}
       >
-        {message.text}
-        {message.transactionLink ? (
-          <div className="break-words">
-            Transaction Link: {message.transactionLink}
-          </div>
-        ) : null}
+        {/* Image */}
+        <div className="flex-shrink-0">
+          <Image
+            width={50}
+            height={50}
+            src={message.isUser ? 'https://pbs.twimg.com/profile_images/1738282870936924160/KT5AakZ5_400x400.jpg' : '/chat-bot.webp'}
+            alt={message.isUser ? 'User' : 'AI'}
+            className="rounded-full"
+          />
+        </div>
+
+        {/* Message Bubble */}
+        <div
+          className={`relative p-3 max-w-[70%] break-words ${
+            message.isUser
+              ? 'mr-2 bg-gray-200 bg-opacity-50 backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-bl-lg'
+              : 'ml-2 bg-purple-500 bg-opacity-50 backdrop-blur-sm rounded-tr-lg rounded-bl-lg rounded-br-lg'
+          }`}
+        >
+          {/* Message Text */}
+          {message.text}
+          {message.transactionLink ? (
+            <div className="break-words">
+              Transaction Link: {message.transactionLink}
+            </div>
+          ) : null}
+        </div>
       </div>
     ))}
     {isLoading && <LoadingIcon />}
   </div>
-  {isOpenModal && <FullScreenTopUpModal isOpen={isOpen} toggleModal={toggleModal}/>}
+  {isOpenModal && <FullScreenTopUpModal isOpen={isOpen} toggleModal={toggleModal} />}
 </main>
-      <footer className="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-gray-700">
-        <form onSubmit={handleSubmit} className="flex gap-2 max-w-4xl mx-auto">
-          <FuturisticInput
-            type="text"
-            placeholder="Enter your transfer command..."
-            value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-            className="flex-grow bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-          />
-          <FuturisticButton type="submit" className="bg-blue-600 hover:bg-blue-700">
-            <Send size={18} />
-          </FuturisticButton>
-        </form>
-      </footer>
+
+
+        {/* Input Section */}
+        <footer className="p-4 border-t border-gray-300 bg-white">
+          <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+            <button className="p-2 text-gray-500 hover:text-gray-700">
+              <FaPaperclip size={18} />
+            </button>
+            <button className="p-2 text-gray-500 hover:text-gray-700">
+              <FaSmile size={18} />
+            </button>
+            <input
+              type="text"
+              placeholder="Enter your transfer command..."
+              value={inputValue}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputValue(e.target.value)
+              }
+              className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+            <button
+              type="submit"
+              className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+            >
+              <Send size={18} />
+            </button>
+          </form>
+        </footer>
+      </div>
     </div>
   );
 };
