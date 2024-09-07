@@ -127,7 +127,7 @@ const hash = await writeContract(config,{
   args: [
     '0x52eF0e850337ecEC348C41919862dBAac42F620B', // from
     '0x76C68154AB7CbbB8ae008c6D7dBc8d21e74E78b9', // to
-    0, // amount
+    BigInt(123), // amount
   ],
   // account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
   // request,
