@@ -1,4 +1,4 @@
-import { Coinbase, Wallet, TimeoutError } from "@coinbase/coinbase-sdk";
+import { Coinbase, Wallet } from "@coinbase/coinbase-sdk";
 import mongoose from 'mongoose';
 
 export async function POST(request: Request) {
@@ -41,9 +41,6 @@ export async function POST(request: Request) {
     privateKey: PRIVATE_KEY.replaceAll("\\n", "\n") as string,
   });
 
-  // Get the default user
-  // const user = await coinbase.getDefaultUser();
-
   // Retrieve the existing wallet using the wallet ID stored in the database
   let userWallet;
   let userWalletId;
@@ -59,48 +56,32 @@ export async function POST(request: Request) {
     return (Response as any).json({ message: "Failed to retrieve wallet" }, { status: 500 });
   }
 
-  let transfer;
   try {
     console.log(`Creating transfer to address: ${body.address}`);
+    
+    await userWallet?.faucet();
 
-    transfer = await userWallet?.createTransfer({
+    const transfer = await (userWallet as any)?.createTransfer({
       amount: body.amount,
-      assetId: Coinbase.assets.Usdc,
+      assetId: "usdc",
       destination: body.addressTo,
-      gasless: true
     });
-    // await transfer.wait()
+
+    console.log(`Transfer successful: ${transfer}`);
     
     // Return the transaction hash and link
+    return (Response as any).json(
+      {
+        transactionHash: transfer?.getTransactionHash()?.substring(0, 10),
+        transactionLink: transfer?.getTransactionLink(),
+      },
+      { status: 200 }
+    );
   } catch (e:any) {
     console.error("Error creating transfer:", e);
     return (Response as any).json({ message: "Failed to create transfer", error: e.message }, { status: 500 });
   }
-  try {
-    await transfer.wait({ timeoutSeconds: 10000 });
-  } catch (err) {
-    if (err instanceof TimeoutError) {
-      console.log("Waiting for transfer timed out");
-    }
-  }
-  console.log(transfer, 'checkout the transfer final dude')
-  // if (transfer.getStatus() === ('complete' || 'pending' || 'submitted' || 'signed' || 'broadcast') ) {
-    if (transfer.getSponsoredSend()?.getStatus() === ('complete' || 'submitted' || 'signed') ) {
-    return (Response as any).json(
-      {
-        transactionHash: transfer?.getSponsoredSend()?.getTransactionHash()?.substring(0, 10),
-        transactionLink: transfer?.getSponsoredSend()?.getTransactionLink(),
-      },
-      { status: 200 }
-    );
-  } else {
-    return (Response as any).json(
-      {
-        error: "error"
-      },
-      { status: 500 }
-    );  }
 }
 
-// export const dynamic = "force-dynamic";
-export const maxDuration = 10000;
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;

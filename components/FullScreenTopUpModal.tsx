@@ -3,49 +3,18 @@ import { FaTimes } from 'react-icons/fa'; // X icon for closing the modal
 import { FaDollarSign } from 'react-icons/fa'; // Replace with USDC icon if you have one
 import Image from 'next/image';
 
-const FullScreenTopUpModal = ({ isOpen, toggleModal }: any) => {
+const FullScreenTopUpModal = ({amount, isOpen, toggleModal, handleChange, onClick }: any) => {
 
-    const [amount, setAmount] = useState('');
+    // const [amount, setAmount] = useState('');
 
     const handleTopUp = () => {
-      // Implement top-up logic here
-      console.log(`Topping up ${amount}`);
+      onClick(amount)
       toggleModal();
     };
     if (!isOpen) return null;
 
   return (
     <>
-      {/* Full-screen modal */}
-       {/* {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="relative w-full max-w-md p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-md shadow-lg">
- <button
-              onClick={toggleModal}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
-            >
-              <FaTimes size={24} />
-            </button>
-            <div className="flex flex-col items-center space-y-4">
-              <div className="flex items-center space-x-2">
-              <Image
-            alt="USDC"
-            src="https://basescan.org/token/images/centre-usdc_28.png"
-            width="20"
-            height="20"
-          />
-                <span className="text-xl font-bold">USDC</span>
-              </div>
-
-              <input
-                type="number"
-                placeholder="Enter amount"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              />
-            </div>
-          </div>
-        </div> 
-      )}  */}
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg shadow-xl w-full max-w-md">
         <div className="p-6">
@@ -58,7 +27,7 @@ const FullScreenTopUpModal = ({ isOpen, toggleModal }: any) => {
             type="number"
             placeholder="Enter amount to top up"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
           />
           <button

@@ -21,7 +21,7 @@ import { http, createConfig } from '@wagmi/core'
 import { baseSepolia, base } from '@wagmi/core/chains'
 
 export const config = createConfig({
-  chains: [baseSepolia, base],
+  chains: [base],
     connectors: [
     metaMask(),
     coinbaseWallet({
@@ -31,7 +31,7 @@ export const config = createConfig({
   ],
   transports: {
     [base.id]: http(),
-    [baseSepolia.id]: http(),
+    // [baseSepolia.id]: http(),
   },
 })
 
