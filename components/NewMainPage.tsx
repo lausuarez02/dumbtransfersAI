@@ -14,7 +14,7 @@ import { LoadingIcon } from "./LoadingIcon";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
 import { TransactionFailedMessage } from "./TransactionFailedMessage";
-import { transactionAssistant } from '@/app/utils/ai';
+// import { transactionAssistant } from '@/app/utils/ai';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
 import { config } from '@/app/config';
 import FullScreenTopUpModal from './FullScreenTopUpModal';
@@ -26,15 +26,13 @@ const DumbTransfersAIMainPage = () => {
   const [messages, setMessages] = useState<any>([]);
   const [balance, setBalance] = useState<number | null>(null);
   const [entries, setEntries] = useState<any>([]);
-  const [isOpenModal , setIsOpenModal] = useState(false)
   const { address } = useAccount(); // Directly destructuring address from useAccount
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
 //   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [transactionHash, setTransactionHash] = useState<string | null>(null);
-  const [transactionData, setTransactionData] = useState<any>({amount:0, address: ''})
-  const [transactionDataSuccess, setTransactionDataSuccess] = useState<any>()
+  const [amountUsdc, setAmountUsdc] = useState(0)
+
 
   const [mpcWallet, setMpcWallet] = useState('')
   // const { data: hash, writeContract} = useWriteContract()
@@ -57,31 +55,53 @@ const DumbTransfersAIMainPage = () => {
     }
   };
 
-  const handleAiAssistant = async (value:string) => {
-    const responseStream = await transactionAssistant(value);
-    return responseStream
-  }
+  // const handleAiAssistant = async (value:string) => {
+  //   const responseStream = await transactionAssistant(value);
+  //   return responseStream
+  // }
 
-
-  const fetchTransactionData = async (address:any,addressTo:string, amount:any) => {
-    if (!address || !amount) throw new Error("Address and amount must be provided");
-    setIsLoading(true)
-    const response = await fetch("/api", {
-      method: "POST",
-      body: JSON.stringify({ address, amount, addressTo }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+  const handleAiAssistant = async (value: string) => {
+    try {
+      const response = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: value, mpcWallet, address }),
+      });
   
-    setIsLoading(false)
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+      if (!response.ok) {
+        throw new Error('Failed to get a response from the AI assistant.');
+      }
+  
+      const responseStream = await response.json();
+      return responseStream;
+    } catch (error) {
+      console.error('Error handling AI assistant:', error);
+      return null;
     }
-    
-    let responseData = response.json()
-    return responseData;
   };
+  
+
+  // const fetchTransactionData = async (address:any,addressTo:string, amount:any) => {
+  //   if (!address || !amount) throw new Error("Address and amount must be provided");
+  //   setIsLoading(true)
+  //   const response = await fetch("/api", {
+  //     method: "POST",
+  //     body: JSON.stringify({ address, amount, addressTo }),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   });
+  
+  //   setIsLoading(false)
+  //   if (!response.ok) {
+  //     throw new Error("Network response was not ok");
+  //   }
+    
+  //   let responseData = response.json()
+  //   return responseData;
+  // };
   
 
 const { data: walletClient } = useWalletClient();
@@ -97,41 +117,32 @@ async function switchNetwork(chainId:string) {
     console.error('Failed to switch network', error);
   }
 }
-  const handleTopUp = async () => {
+  const handleTopUp = async (amount:number) => {
     const usdcContractAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
 
     const usdcContractAddressSeploia = "0x5dEaC602762362FE5f135FA5904351916053cF70"
     try {
 
-      // Use the async version if you need to handle promises directly
-//       const txResponse = sendTransaction({to: (mpcWallet as any),
-//       value: parseEther('0.01'),
-// });
-//       console.log('Transaction response:', txResponse);
-// const { request } = await simulateContract({
-//   abi: abiUsdc,
-//   address: usdcContractAddress,
-//   functionName: 'transferFrom',
-//   args: [
-//     '0x52eF0e850337ecEC348C41919862dBAac42F620B', // from
-//     '0x52eF0e850337ecEC348C41919862dBAac42F620B', // to
-//     123n, // amount
-//   ],
-// });
-
-// console.log("Request:", request);
+      await writeContract(config,{
+        abi: abiUsdc,
+        address: usdcContractAddress,
+        functionName: 'approve',
+        args: [
+          address, // The address that will spend the tokens (e.g., your contract or wallet)
+          BigInt(Math.floor(amount * 10 ** 6)), // The amount of tokens to approve
+        ],
+      });
 
 const hash = await writeContract(config,{
   abi: abiUsdc,
-  address: usdcContractAddressSeploia,
+  address: usdcContractAddress,
   functionName: 'transferFrom',
   args: [
-    '0x52eF0e850337ecEC348C41919862dBAac42F620B', // from
-    '0x76C68154AB7CbbB8ae008c6D7dBc8d21e74E78b9', // to
-    BigInt(123), // amount
+    address, // from
+    mpcWallet, // to
+    // BigInt(amount), // amount
+    BigInt(Math.floor(amount * 10 ** 6))
   ],
-  // account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-  // request,
 });
     console.log(`check the hash ${hash} `)
       console.log('Transaction mined!');
@@ -189,19 +200,20 @@ const hash = await writeContract(config,{
         const aiResponse = await handleAiAssistant(inputValue);
         console.log(aiResponse, "check the aiResponse dude")
         // Ensure data is available before setting messages
-        if (aiResponse && aiResponse.answer) {
-            if(aiResponse.transaction === true){
-                setTransactionData({amount:aiResponse.amount,addressTo:aiResponse.to, address: address})
-                const dataSuccess = await fetchTransactionData(address, aiResponse.to, aiResponse.amount);
-                console.log(dataSuccess, "check the dataSuccess bro")
-                // setTransactionDataSuccess(dataSuccess)
-                setMessages((prev: any) => [...prev, { text: `Transaction successful!`, isUser: false, transactionLink: dataSuccess.transactionLink }]);
+        // if (aiResponse && aiResponse.answer) {
+          if (aiResponse) {
+            // if(aiResponse.transaction === true){
+                // const dataSuccess = await fetchTransactionData(address, aiResponse.to, aiResponse.amount);
+                // console.log(dataSuccess, "check the dataSuccess bro")
+                // setMessages((prev: any) => [...prev, { text: `Transaction successful!`, isUser: false, transactionLink: dataSuccess.transactionLink }]);
+                setMessages((prev: any) => [...prev, { text: aiResponse, isUser: false }]);
 
                 // setMessages((prev: any) => [...prev, { text: aiResponse.answer, isUser: false, transactionLink: data.transactionLink }])
-            }else{
-                setMessages((prev: any) => [...prev, { text: aiResponse.answer, isUser: false }]);
             }
-        }
+            // else{
+            //     // setMessages((prev: any) => [...prev, { text: aiResponse.answer, isUser: false }]);
+            //     setMessages((prev: any) => [...prev, { text: aiResponse, isUser: false }]);
+            //   }
     } catch (error) {
         console.error("Error fetching AI response:", error);
     }
@@ -230,19 +242,18 @@ const hash = await writeContract(config,{
 
   const toggleModal = () => {
     setIsOpen(!isOpen)
-    setIsOpenModal(!isOpenModal)
   };
 
 
 
   const handleModal = () => {
-    setIsOpenModal(true)
     setIsOpen(true)
-    // return(
-    //   <FullScreenTopUpModal isOpen={isOpen} toggleModal={toggleModal}/>
-    // )
   }
 
+  const handleChange = (e: any) => {
+    const { value } = e.target;
+    setAmountUsdc(value);
+  };
   return (
     <div className="flex h-screen bg-white text-black">
       {/* Left Sidebar for Previous Chats */}
@@ -302,7 +313,7 @@ const hash = await writeContract(config,{
               </div>
             ) : (
               <button
-                onClick={() => connect({ connector: injected() })}
+                onClick={() => connect({ connector: injected(), chainId: 8453 })}
                 className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
               >
                 Connect Wallet
@@ -338,32 +349,6 @@ const hash = await writeContract(config,{
             </button>
           </div>
         )}
-
-        {/* Chat Messages */}
-        {/* <main className="flex-grow overflow-y-auto p-4 pb-20">
-          <div className="space-y-4">
-            {messages.map((message: any, index: any) => (
-              <div
-                key={index}
-                className={`p-3 rounded-lg max-w-[80%] break-words ${
-                  message.isUser
-                    ? 'ml-auto bg-gray-200 bg-opacity-50 backdrop-blur-sm'
-                    : 'mr-auto bg-purple-500 bg-opacity-50 backdrop-blur-sm'
-                }`}
-              >
-                {message.text}
-                {message.transactionLink ? (
-                  <div className="break-words">
-                    Transaction Link: {message.transactionLink}
-                  </div>
-                ) : null}
-              </div>
-            ))}
-            {isLoading && <LoadingIcon />}
-          </div>
-          {isOpenModal && <FullScreenTopUpModal isOpen={isOpen} toggleModal={toggleModal} />}
-        </main> */}
-
 <main className="flex-grow overflow-y-auto p-4 pb-20">
   <div className="space-y-4">
     {messages.map((message: any, index: any) => (
@@ -394,17 +379,17 @@ const hash = await writeContract(config,{
         >
           {/* Message Text */}
           {message.text}
-          {message.transactionLink ? (
+          {/* {message.transactionLink ? (
             <div className="break-words">
               Transaction Link: {message.transactionLink}
             </div>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
     ))}
     {isLoading && <LoadingIcon />}
   </div>
-  {isOpenModal && <FullScreenTopUpModal isOpen={isOpen} toggleModal={toggleModal} />}
+  {isOpen && <FullScreenTopUpModal onClick={handleTopUp} amount={amountUsdc} handleChange={handleChange} isOpen={isOpen} toggleModal={toggleModal} />}
 </main>
 
 
