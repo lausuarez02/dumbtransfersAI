@@ -6,9 +6,7 @@ import dynamic from "next/dynamic";
 const ChatScreen = dynamic(() => import("@/components/ChatScreen"), {
   ssr: false,
 });
-const DumbTransfersAIMainPage = dynamic(() => import("@/components/MainPage"), {
-  ssr: false,
-});
+
 const WalletProviders = dynamic(() => import("@/components/WalletProviders"), {
   ssr: false,
 });
