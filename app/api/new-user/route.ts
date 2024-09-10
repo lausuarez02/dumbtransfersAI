@@ -6,7 +6,7 @@ const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
 });
 
-const Contact = mongoose.model('Contact', contactSchema);
+const Contact = mongoose.models.Contact || mongoose.model('Contact', contactSchema);
 
 export async function POST(request: Request) {
   const { NAME, PRIVATE_KEY } = process.env;

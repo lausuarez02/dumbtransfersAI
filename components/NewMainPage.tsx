@@ -14,12 +14,11 @@ import { LoadingIcon } from "./LoadingIcon";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
 import { TransactionFailedMessage } from "./TransactionFailedMessage";
-// import { transactionAssistant } from '@/app/utils/ai';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
 import { config } from '@/app/config';
 import FullScreenTopUpModal from './FullScreenTopUpModal';
 import Image from 'next/image';
-import { FaTimes, FaDollarSign, FaPaperclip, FaSmile } from 'react-icons/fa';
+import { FaTimes, FaBars, FaPaperclip, FaSmile } from 'react-icons/fa';
 
 const DumbTransfersAIMainPage = () => {
   const [inputValue, setInputValue] = useState('');
@@ -32,8 +31,8 @@ const DumbTransfersAIMainPage = () => {
 //   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [amountUsdc, setAmountUsdc] = useState(0)
-
-
+  const [contactName, setContactName] = useState('')
+  const [isButtonDisabled ,setIsButtonDisabled] = useState(false)
   const [mpcWallet, setMpcWallet] = useState('')
   // const { data: hash, writeContract} = useWriteContract()
   const account = useAccount();
@@ -128,7 +127,7 @@ async function switchNetwork(chainId:string) {
         address: usdcContractAddress,
         functionName: 'approve',
         args: [
-          address, // The address that will spend the tokens (e.g., your contract or wallet)
+          address as any, // The address that will spend the tokens (e.g., your contract or wallet)
           BigInt(Math.floor(amount * 10 ** 6)), // The amount of tokens to approve
         ],
       });
@@ -138,8 +137,8 @@ const hash = await writeContract(config,{
   address: usdcContractAddress,
   functionName: 'transferFrom',
   args: [
-    address, // from
-    mpcWallet, // to
+    address as any, // from
+    mpcWallet as any, // to
     // BigInt(amount), // amount
     BigInt(Math.floor(amount * 10 ** 6))
   ],
@@ -197,23 +196,13 @@ const hash = await writeContract(config,{
 
     try {
         // Await the AI assistant's response
+        setIsLoading(true)
         const aiResponse = await handleAiAssistant(inputValue);
-        console.log(aiResponse, "check the aiResponse dude")
-        // Ensure data is available before setting messages
-        // if (aiResponse && aiResponse.answer) {
           if (aiResponse) {
-            // if(aiResponse.transaction === true){
-                // const dataSuccess = await fetchTransactionData(address, aiResponse.to, aiResponse.amount);
-                // console.log(dataSuccess, "check the dataSuccess bro")
-                // setMessages((prev: any) => [...prev, { text: `Transaction successful!`, isUser: false, transactionLink: dataSuccess.transactionLink }]);
-                setMessages((prev: any) => [...prev, { text: aiResponse, isUser: false }]);
-
-                // setMessages((prev: any) => [...prev, { text: aiResponse.answer, isUser: false, transactionLink: data.transactionLink }])
+              setMessages((prev: any) => [...prev, { text: aiResponse, isUser: false , hasButton: aiResponse.hasButton || false, buttonText: aiResponse.buttonText || "",}]);
             }
-            // else{
-            //     // setMessages((prev: any) => [...prev, { text: aiResponse.answer, isUser: false }]);
-            //     setMessages((prev: any) => [...prev, { text: aiResponse, isUser: false }]);
-            //   }
+            setIsLoading(false)
+
     } catch (error) {
         console.error("Error fetching AI response:", error);
     }
@@ -254,71 +243,149 @@ const hash = await writeContract(config,{
     const { value } = e.target;
     setAmountUsdc(value);
   };
+
+  const handleUserResponse = async (response:string) => {
+    let aiResponse:string;
+    if (!isButtonDisabled) {
+      setIsButtonDisabled(true); // Disable the button to prevent double-click
+      // Your click handling logic here
+  
+      // Optionally, re-enable the button after some async action (e.g., after submitting data)
+      setTimeout(() => setIsButtonDisabled(false), 3000); // Example timeout for re-enabling
+    }
+    setIsLoading(true)
+    if (response === 'yes') {
+      // Logic for saving the contact
+      aiResponse = await handleAiAssistant('yes')
+      console.log("User wants to save the contact.");
+    } else if (response === 'no') {
+      aiResponse = await handleAiAssistant('no')
+    }
+    else{
+      aiResponse = await handleAiAssistant(response)
+    }
+    setIsLoading(false)
+    setMessages((prev: any) => [...prev, { text: aiResponse, isUser: false}]);
+  };
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="flex h-screen bg-white text-black">
       {/* Left Sidebar for Previous Chats */}
-      <aside className="w-1/4 bg-gray-100 border-r border-gray-300 p-4">
+      {/* <button
+        onClick={toggleSidebar}
+        className="md:hidden bg-violet-500 text-white p-2 rounded-lg fixed top-4 right-4 z-50"
+      >
+        {isSidebarOpen ? 'Hide Chats' : 'Show Chats'}
+      </button> */}
+
+      {/* Left Sidebar for Previous Chats */}
+      <aside
+        className={`bg-gray-100 border-r border-gray-300 p-4 transform transition-transform duration-300 ease-in-out 
+          w-64 fixed inset-y-0 left-0 z-40 md:relative md:translate-x-0 
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} 
+          md:w-1/4`}
+      >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">Chats</h2>
+        <button
+        className="md:hidden fixed top-4 left-4 z-30 bg-violet-500 hover:bg-violet-600 text-white p-3 rounded-lg focus:outline-none"
+        onClick={toggleSidebar}
+      >
+        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
           <button className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg">
             New Chat
           </button>
         </div>
+        <h2 className="text-lg font-bold">Chats</h2>
+
         <ul className="space-y-4">
           <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Andres</li>
           <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Mom</li>
           <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Bills</li>
         </ul>
+        {/* Hide Sidebar Button for Desktop */}
+        {/* <button
+          onClick={toggleSidebar}
+          className="hidden md:block bg-red-500 text-white p-2 rounded-lg mt-4"
+        >
+          Hide Sidebar
+        </button> */}
       </aside>
+      <button
+        className="md:hidden fixed top-4 left-4 z-30 bg-violet-500 hover:bg-violet-600 text-white p-3 rounded-lg focus:outline-none"
+        onClick={toggleSidebar}
+      >
+        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
 
       {/* Main Chat Area */}
-      <div className="flex-grow flex flex-col">
+      <div className={`flex-grow flex flex-col ${isSidebarOpen && 'md:ml-0'} transition-all`}>
         <header className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-600">
+        {/* <button
+            onClick={toggleSidebar}
+            className="md:hidden bg-violet-500 text-white p-2 rounded-lg absolute left-4 z-50"
+          >
+            {isSidebarOpen ? 'Hide Chats' : 'Show Chats'}
+          </button> */}
+
+          {/* Title Centered */}
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-600">
             DumbTransfers
           </h1>
           <div className="bg-white text-black">
             {address ? (
-              <div className="relative flex items-center gap-2">
-                <button
-                  onClick={toggleDropdown}
-                  className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
-                >
-                  Wallet Info
-                </button>
-                {isDropdownOpen && (
-                  <div className="absolute top-full mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Connected: {truncateAddress(address)}</span>
-                      <ClipboardIcon
-                        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
-                        onClick={() => copyToClipboard(address)}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm">MPC address: {truncateAddress(mpcWallet)}</span>
-                      <ClipboardIcon
-                        className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
-                        onClick={() => copyToClipboard(mpcWallet)}
-                      />
-                    </div>
-                  </div>
-                )}
-                <button
-                  onClick={() => disconnect()}
-                  className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => connect({ connector: injected(), chainId: 8453 })}
-                className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
-              >
-                Connect Wallet
-              </button>
-            )}
+  <div className="relative flex items-center gap-2">
+    {/* Wallet Info Button */}
+    <button
+      onClick={toggleDropdown}
+      className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+    >
+      Wallet
+    </button>
+
+    {/* Dropdown Menu */}
+    {isDropdownOpen && (
+      <div className="absolute top-full mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-50 right-0">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm">Connected: {truncateAddress(address)}</span>
+          <ClipboardIcon
+            className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
+            onClick={() => copyToClipboard(address)}
+          />
+        </div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm">MPC address: {truncateAddress(mpcWallet)}</span>
+          <ClipboardIcon
+            className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
+            onClick={() => copyToClipboard(mpcWallet)}
+          />
+        </div>
+
+        {/* Logout Button at the Bottom */}
+        <button
+          onClick={() => disconnect()}
+          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white w-full mt-4"
+        >
+          Logout
+        </button>
+      </div>
+    )}
+  </div>
+) : (
+  <button
+    onClick={() => connect({ connector: injected(), chainId: 8453 })}
+    className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+  >
+    Connect Wallet
+  </button>
+)}
+
           </div>
         </header>
 
@@ -363,7 +430,7 @@ const hash = await writeContract(config,{
           <Image
             width={50}
             height={50}
-            src={message.isUser ? 'https://pbs.twimg.com/profile_images/1738282870936924160/KT5AakZ5_400x400.jpg' : '/chat-bot.webp'}
+            src={message.isUser ? '/person.png' : '/chat-bot.webp'}
             alt={message.isUser ? 'User' : 'AI'}
             className="rounded-full"
           />
@@ -377,13 +444,44 @@ const hash = await writeContract(config,{
               : 'ml-2 bg-purple-500 bg-opacity-50 backdrop-blur-sm rounded-tr-lg rounded-bl-lg rounded-br-lg'
           }`}
         >
-          {/* Message Text */}
-          {message.text}
-          {/* {message.transactionLink ? (
-            <div className="break-words">
-              Transaction Link: {message.transactionLink}
-            </div>
-          ) : null} */}
+          <div dangerouslySetInnerHTML={{ __html: message.text.text ? message.text.text : message.text }}></div>
+
+          {message.text.hasInput && (
+        <input 
+          type="text"
+          placeholder={message.text.translatedName || 'Name'}
+          onChange={(e) => setContactName(e.target.value)}
+          className="mt-2 px-3 py-2 border border-gray-300 rounded"
+        />
+      )}
+    {message.text.hasButtonName && (
+            <button 
+            disabled={isButtonDisabled}
+              onClick={() => handleUserResponse(contactName)}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              {message.text.translatedSend || 'Send'}
+            </button>
+          )}
+          {message.text.hasButton && (
+            <button 
+            disabled={isButtonDisabled}
+              onClick={() => handleUserResponse('yes')}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              {message.text.buttonTextYes || 'Yes'}
+            </button>
+          )}
+
+          {message.text.hasButton && (
+            <button 
+            disabled={isButtonDisabled}
+              onClick={() => handleUserResponse('no')}
+              className="mt-2 bg-red-500 text-white px-4 py-2 rounded ml-2"
+            >
+              {message.text.buttonTextNo || 'No'}
+            </button>
+          )}
         </div>
       </div>
     ))}

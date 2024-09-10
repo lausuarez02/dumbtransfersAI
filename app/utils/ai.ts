@@ -50,19 +50,49 @@ const openai = new OpenAI({
   export async function mainAssistant(userMessage: string, mpcWallet:string, address:string): Promise<any> {
     const language = await detectLanguage(userMessage);
 
-      // Check if there's an active state
-  if (conversationState.waitingFor === 'saveContact') {
-    const userResponse = userMessage.toLowerCase().trim();
-    
-    if (userResponse === 'yes') {
-      const contactName = await getContactNameFromUser(language);
-      await saveContactInDB({
+    console.log(conversationState.waitingFor, "check waitingFor001")
+    console.log(userMessage, "chec the usermessage")
+    if (conversationState.waitingFor === 'saveContactName') {
+      
+         await saveContactInDB({
         userWallet: mpcWallet, 
         contactWallet: conversationState.contactWallet,
-        name: contactName,
+        name: userMessage,
       });
-      const response = await translateAssistant(`Contact saved as ${contactName}.`, language);
+
+      const response = await translateAssistant(`Contact saved as ${userMessage}.`, language);
       conversationState = {}; // Clear the state after saving
+      return response;
+    }
+      // Check if there's an active state
+      console.log(conversationState.waitingFor, "check waitingFor001")
+
+  if (conversationState.waitingFor === 'saveContact') {
+    const userResponse = userMessage.toLowerCase().trim();
+    console.log(conversationState.waitingFor, "check waitingFor")
+    
+    if (userResponse === 'yes') {
+      conversationState = {
+        waitingFor: 'saveContactName',
+        userWallet: mpcWallet, // Get this from the user's session
+        contactWallet: conversationState.contactWallet,
+      };
+      const translatedName = await translateAssistant("Name", language);
+      const translatedSend = await translateAssistant("Enviar", language);
+
+      let response;
+      // Append both Yes and No buttons to the response string
+      response = {
+        text: `${await translateAssistant("Type the name you want to give it", language)}`,
+        hasButtonName: true,
+        hasInput:true,
+        translatedName: translatedName,
+        translatedSend: translatedSend
+      };
+      // response = ` ${await translateAssistant("Type the name you want to give it", language)} 
+      // <input class="save-contact-name" type="text" placeholder="${translatedName}" />
+      // <button class="save-contact-btn-name">${translatedSend}</button>
+      // `
       return response;
     } else {
       conversationState = {}; // Clear the state if user doesn't want to save
@@ -147,9 +177,18 @@ const openai = new OpenAI({
             contactWallet: parsedResponse.to,
           };
           const translatedYes = await translateAssistant("Yes", language);
-
-          response += ` ${await translateAssistant("Would you like to save this contact?", language)} 
-          <button onclick="handleUserResponse('yes')">${translatedYes}</button>`;
+          const translatedNo = await translateAssistant("No", language);
+        
+          // Append both Yes and No buttons to the response string
+          response = {
+            text: response + ` ${await translateAssistant("Transaction successful! Would you like to save this contact?", language)}`,
+            hasButton: true,
+            buttonTextYes: translatedYes,
+            buttonTextNo: translatedNo
+          };
+          // response += ` ${await translateAssistant("Would you like to save this contact?", language)} 
+          // <button class="save-contact-btn-yes">${translatedYes}</button>
+          // <button class="save-contact-btn-no">${translatedNo}</button>`;
           // response += ` ${await translateAssistant("Would you like to save this contact?", language)}`;      
         }
 
