@@ -317,24 +317,18 @@ const hash = await writeContract(config,{
           Hide Sidebar
         </button> */}
       </aside>
-      <button
-        className="md:hidden fixed top-4 left-4 z-30 bg-violet-500 hover:bg-violet-600 text-white p-3 rounded-lg focus:outline-none"
-        onClick={toggleSidebar}
-      >
-        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-      </button>
+
 
       {/* Main Chat Area */}
       <div className={`flex-grow flex flex-col ${isSidebarOpen && 'md:ml-0'} transition-all`}>
         <header className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
-        {/* <button
-            onClick={toggleSidebar}
-            className="md:hidden bg-violet-500 text-white p-2 rounded-lg absolute left-4 z-50"
-          >
-            {isSidebarOpen ? 'Hide Chats' : 'Show Chats'}
-          </button> */}
-
           {/* Title Centered */}
+          <button
+        className="md:hidden top-4 left-4 z-30 bg-violet-500 hover:bg-violet-600 text-white p-3 rounded-lg focus:outline-none"
+        onClick={toggleSidebar}
+      >
+        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-600">
             DumbTransfers
           </h1>

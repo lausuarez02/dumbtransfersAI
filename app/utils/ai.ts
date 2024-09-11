@@ -352,7 +352,7 @@ const openai = new OpenAI({
   }
   
   // Updated swapAssistant with translation
-  async function swapAssistant(address, swapDetails: any, language: string) {
+  async function swapAssistant(address:any, swapDetails: any, language: string) {
     const { complete, fromToken, toToken, amount, missingDetails } = swapDetails;
   
     let response;
