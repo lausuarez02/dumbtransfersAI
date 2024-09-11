@@ -28,7 +28,7 @@ const openai = new OpenAI({
   const fetchTransactionData = async (address:any,addressTo:string, amount:any) => {
     // if (!address || !amount) throw new Error("Address and amount must be provided");
     // setIsLoading(true)
-    const response = await fetch("http://localhost:3000/api", {
+    const response = await fetch("https://www.dumbtransfers.com/api", {
       method: "POST",
       body: JSON.stringify({ address, amount, addressTo }),
       headers: {
