@@ -46,6 +46,27 @@ const openai = new OpenAI({
     return responseData;
   };
   
+  const fetchTradeData = async (address:any,fromToken:any, toToken:any , amount:any) => {
+    // if (!address || !amount) throw new Error("Address and amount must be provided");
+    // setIsLoading(true)
+    const response = await fetch("http://localhost:3000/api/trade", {
+      method: "POST",
+      body: JSON.stringify({ address,fromToken, toToken, amount }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  
+    // setIsLoading(false)
+    // if (!response.ok) {
+    //   throw new Error("Network response was not ok");
+    // }
+    
+    console.log(response, "check the response dude")
+    let responseData = response.json()
+    return responseData;
+  };
+  
   // Main Assistant Function
   export async function mainAssistant(userMessage: string, mpcWallet:string, address:string): Promise<any> {
     const language = await detectLanguage(userMessage);
@@ -106,7 +127,7 @@ const openai = new OpenAI({
         role: 'system',
         content: `You are an assistant that handles financial transactions, token swaps, and general questions.
         - If the user asks for a transaction but doesn't provide the amount or recipient, ask for the missing information.
-        - If the user asks for a token swap but doesn't provide the amount or tokens, ask for the missing details.
+        - If the user asks for a token swap but doesn't provide the amount or tokens, respond here for the missing details and tell him right now we support this tokens Eth , Wei, Gwei,Usdc,Weth and all in BASE.
         - Respond in the language of the user message and with the following format:
           {
             "type": "transaction",
@@ -193,7 +214,7 @@ const openai = new OpenAI({
         }
 
       } else if (parsedResponse.type === "swap") {
-        response = await swapAssistant(parsedResponse, language);
+        response = await swapAssistant(address, parsedResponse, language);
       } else if (parsedResponse.type === "general") {
         response = await generalAssistant(parsedResponse, language);
       }
@@ -331,23 +352,39 @@ const openai = new OpenAI({
   }
   
   // Updated swapAssistant with translation
-  async function swapAssistant(swapDetails: any, language: string) {
+  async function swapAssistant(address:any, swapDetails: any, language: string) {
     const { complete, fromToken, toToken, amount, missingDetails } = swapDetails;
   
     let response;
     if (!complete) {
-      if (missingDetails.includes('fromToken')) {
-        const response = await translateAssistant("Please provide the token you want to swap from.", language);
+      let message = '';
+    
+      // Combine the messages if multiple details are missing
+      if (missingDetails.includes('fromToken') && missingDetails.includes('toToken') && missingDetails.includes('amount')) {
+        message = "Please provide the tokens for both sides of the swap and the amount.";
+      } else if (missingDetails.includes('fromToken') && missingDetails.includes('toToken')) {
+        message = "Please provide both the token you want to swap from and the token you want to swap to.";
+      } else if (missingDetails.includes('fromToken') && missingDetails.includes('amount')) {
+        message = "Please provide the token you want to swap from and the amount for the swap.";
+      } else if (missingDetails.includes('toToken') && missingDetails.includes('amount')) {
+        message = "Please provide the token you want to swap to and the amount for the swap.";
+      } else if (missingDetails.includes('fromToken')) {
+        message = "Please provide the token you want to swap from.";
+      } else if (missingDetails.includes('toToken')) {
+        message = "Please provide the token you want to swap to.";
+      } else if (missingDetails.includes('amount')) {
+        message = "Please provide the amount for the swap.";
+      }
+    
+      // If there's a message, translate it based on the user's language
+      if (message) {
+        response = await translateAssistant(message, language);
         console.log(response);
       }
-      if (missingDetails.includes('toToken')) {
-        const response = await translateAssistant("Please provide the token you want to swap to.", language);
-        console.log(response);
-      }
-      if (missingDetails.includes('amount')) {
-        const response = await translateAssistant("Please provide the amount for the swap.", language);
-        console.log(response);
-      }
-      return response
+      
+      const tradeResult = await fetchTradeData(address,fromToken, toToken , amount);
+    
+      return response;
     }
+    
   }
