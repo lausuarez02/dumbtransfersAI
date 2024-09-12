@@ -19,7 +19,9 @@ import { config } from '@/app/config';
 import FullScreenTopUpModal from './FullScreenTopUpModal';
 import Image from 'next/image';
 import { FaTimes, FaBars, FaPaperclip, FaSmile } from 'react-icons/fa';
+import { Space_Grotesk } from 'next/font/google';
 
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] });
 const DumbTransfersAIMainPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<any>([]);
@@ -293,12 +295,12 @@ const hash = await writeContract(config,{
       >
         <div className="flex justify-between items-center mb-4">
         <button
-        className="md:hidden fixed top-4 left-4 z-30 bg-violet-500 hover:bg-violet-600 text-white p-3 rounded-lg focus:outline-none"
+        className="md:hidden fixed top-4 left-4 z-30 bg-[#004aad] hover:bg-[#004aad] text-white p-3 rounded-lg focus:outline-none"
         onClick={toggleSidebar}
       >
         {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
       </button>
-          <button className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2 rounded-lg">
+          <button className="bg-[#004aad] text-white px-4 py-2 rounded-lg">
             New Chat
           </button>
         </div>
@@ -324,12 +326,12 @@ const hash = await writeContract(config,{
         <header className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
           {/* Title Centered */}
           <button
-        className="md:hidden top-4 left-4 z-30 bg-violet-500 hover:bg-violet-600 text-white p-3 rounded-lg focus:outline-none"
+        className="md:hidden top-4 left-4 z-30 bg-white text-white p-3 rounded-lg focus:outline-none"
         onClick={toggleSidebar}
       >
-        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars color='blue' size={24} />}
       </button>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-600">
+          <h1 className={`text-2xl font-bold bg-clip-text text-transparent bg-[#004aad] ${spaceGrotesk.className}`}>
             DumbTransfers
           </h1>
           <div className="bg-white text-black">
@@ -338,7 +340,7 @@ const hash = await writeContract(config,{
     {/* Wallet Info Button */}
     <button
       onClick={toggleDropdown}
-      className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+      className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
     >
       Wallet
     </button>
@@ -374,7 +376,7 @@ const hash = await writeContract(config,{
 ) : (
   <button
     onClick={() => connect({ connector: injected(), chainId: 8453 })}
-    className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+    className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
   >
     Connect Wallet
   </button>
@@ -410,7 +412,7 @@ const hash = await writeContract(config,{
             </button>
           </div>
         )}
-<main className="flex-grow overflow-y-auto p-4 pb-20">
+{/* <main className="flex-grow overflow-y-auto p-4 pb-20">
   <div className="space-y-4">
     {messages.map((message: any, index: any) => (
       <div
@@ -419,7 +421,6 @@ const hash = await writeContract(config,{
           message.isUser ? 'ml-auto flex-row-reverse' : 'mr-auto'
         }`}
       >
-        {/* Image */}
         <div className="flex-shrink-0">
           <Image
             width={50}
@@ -430,12 +431,11 @@ const hash = await writeContract(config,{
           />
         </div>
 
-        {/* Message Bubble */}
         <div
           className={`relative p-3 max-w-[70%] break-words ${
             message.isUser
               ? 'mr-2 bg-gray-200 bg-opacity-50 backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-bl-lg'
-              : 'ml-2 bg-purple-500 bg-opacity-50 backdrop-blur-sm rounded-tr-lg rounded-bl-lg rounded-br-lg'
+              : 'ml-2 bg-[#004aad] bg-opacity-50 backdrop-blur-sm rounded-tr-lg rounded-bl-lg rounded-br-lg'
           }`}
         >
           <div dangerouslySetInnerHTML={{ __html: message.text.text ? message.text.text : message.text }}></div>
@@ -482,6 +482,83 @@ const hash = await writeContract(config,{
     {isLoading && <LoadingIcon />}
   </div>
   {isOpen && <FullScreenTopUpModal onClick={handleTopUp} amount={amountUsdc} handleChange={handleChange} isOpen={isOpen} toggleModal={toggleModal} />}
+</main> */}
+<main className="flex-grow overflow-y-auto p-4 pb-20">
+  <div className="space-y-4">
+    {messages.map((message: any, index: any) => (
+      <div
+        key={index}
+        className={`flex items-start max-w-[80%] ${
+          message.isUser ? 'ml-auto flex-row-reverse' : 'mr-auto'
+        }`}
+      >
+        {/* Image */}
+        <div className="flex-shrink-0">
+          <Image
+            width={50}
+            height={50}
+            src={message.isUser ? '/person.png' : '/chat-bot.webp'}
+            alt={message.isUser ? 'User' : 'AI'}
+            className="rounded-full"
+          />
+        </div>
+
+        {/* Message Bubble */}
+        <div
+          className={`relative p-3 max-w-[70%] break-words ${
+            message.isUser
+              ? 'mr-2 bg-gray-200 bg-opacity-50 backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-bl-lg'
+              : 'ml-2 bg-[#004aad] bg-opacity-50 backdrop-blur-sm rounded-tr-lg rounded-bl-lg rounded-br-lg'
+          }`}
+          style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }} // Ensure text breaks properly
+        >
+          <div dangerouslySetInnerHTML={{ __html: message.text.text ? message.text.text : message.text }}></div>
+
+          {message.text.hasInput && (
+            <input 
+              type="text"
+              placeholder={message.text.translatedName || 'Name'}
+              onChange={(e) => setContactName(e.target.value)}
+              className="mt-2 px-3 py-2 border border-gray-300 rounded w-full"
+            />
+          )}
+
+          {message.text.hasButtonName && (
+            <button 
+              disabled={isButtonDisabled}
+              onClick={() => handleUserResponse(contactName)}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded w-full"
+            >
+              {message.text.translatedSend || 'Send'}
+            </button>
+          )}
+
+          {message.text.hasButton && (
+            <div className="flex space-x-2 mt-2">
+              <button 
+                disabled={isButtonDisabled}
+                onClick={() => handleUserResponse('yes')}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                {message.text.buttonTextYes || 'Yes'}
+              </button>
+
+              <button 
+                disabled={isButtonDisabled}
+                onClick={() => handleUserResponse('no')}
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                {message.text.buttonTextNo || 'No'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+
+    {isLoading && <LoadingIcon />}
+  </div>
+  {isOpen && <FullScreenTopUpModal onClick={handleTopUp} amount={amountUsdc} handleChange={handleChange} isOpen={isOpen} toggleModal={toggleModal} />}
 </main>
 
 
@@ -496,7 +573,7 @@ const hash = await writeContract(config,{
             </button>
             <input
               type="text"
-              placeholder="Enter your transfer command..."
+              placeholder="Transfer..."
               value={inputValue}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setInputValue(e.target.value)
@@ -505,7 +582,7 @@ const hash = await writeContract(config,{
             />
             <button
               type="submit"
-              className="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-lg text-white"
+              className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
             >
               <Send size={18} />
             </button>
