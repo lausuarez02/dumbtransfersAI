@@ -127,7 +127,7 @@ const openai = new OpenAI({
         role: 'system',
         content: `You are an assistant that handles financial transactions, token swaps, and general questions.
         - If the user asks for a transaction but doesn't provide the amount or recipient, ask for the missing information.
-        - If the user asks for a token swap but doesn't provide the amount or tokens, respond here for the missing details and tell him right now we support this tokens Eth , Wei, Gwei,Usdc,Weth and all in BASE.
+        - If the user asks for a token swap but doesn't provide the amount or tokens, respond here for the missing details and tell him right now we support this tokens Eth , Wei, Gwei,Usdc,Weth, Eurc and all in BASE.
         - Respond in the language of the user message and with the following format:
           {
             "type": "transaction",
@@ -139,7 +139,7 @@ const openai = new OpenAI({
         - For swaps, respond with:
           {
             "type": "swap",
-            "complete": boolean,
+            "complete": boolean depending if there is missing details,
             "fromToken": "TOKEN1" | null,
             "toToken": "TOKEN2" | null,
             "amount": number | null,
@@ -175,9 +175,14 @@ const openai = new OpenAI({
       // Check the type of response
       if (parsedResponse.type === "transaction") {
         const existingContact = await Contact.findOne({
-          $or: [
-            { contactWallet: parsedResponse.to },
-            { name: { $regex: new RegExp(`^${parsedResponse.to}$`, 'i') } } // case-insensitive search for name
+          $and: [
+            {
+              $or: [
+                { contactWallet: parsedResponse.to },
+                { name: { $regex: new RegExp(`^${parsedResponse.to}$`, 'i') } } // case-insensitive search for name
+              ]
+            },
+            { userWallet: address } // Ensure the contact belongs to the current user
           ]
         });
 
@@ -284,7 +289,6 @@ const openai = new OpenAI({
       transactionResult = await fetchTransactionData(address, existingContact.contactWallet, amount);
     }else{
       transactionResult = await fetchTransactionData(address, to, amount);
-
     }
     // Perform the transaction (pseudo-code, replace with your actual transaction logic)
   
@@ -356,9 +360,9 @@ const openai = new OpenAI({
     const { complete, fromToken, toToken, amount, missingDetails } = swapDetails;
   
     let response;
-    if (!complete) {
+    if (missingDetails.length > 0) {
       let message = '';
-    
+      console.log(missingDetails, "check the missingDetails")
       // Combine the messages if multiple details are missing
       if (missingDetails.includes('fromToken') && missingDetails.includes('toToken') && missingDetails.includes('amount')) {
         message = "Please provide the tokens for both sides of the swap and the amount.";
@@ -379,12 +383,27 @@ const openai = new OpenAI({
       // If there's a message, translate it based on the user's language
       if (message) {
         response = await translateAssistant(message, language);
-        console.log(response);
+        return response
       }
-      
-      const tradeResult = await fetchTradeData(address,fromToken, toToken , amount);
-    
-      return response;
+          
+    }else{
+      response = await fetchTradeData(address,fromToken, toToken , amount);
+      console.log("check if its inside with response", response)
+      if(response.status === 'complete'){
+        return translateAssistant(
+          `
+          Swap of ${amount} USDC to Eurc was successful! 
+          Status : ${response.status}
+          Amount in new token now: ${response.to_amount}
+          `, language);
+        }
+        else{
+          return translateAssistant(
+            `
+            Swap of ${amount} USDC to Eurc was Not successful! 
+            Status : ${response.status}
+            Amount in new token now: ${response.to_amount}
+            `, language);
+        }   
     }
-    
   }
