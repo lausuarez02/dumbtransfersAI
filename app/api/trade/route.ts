@@ -1,4 +1,4 @@
-import { Coinbase, Wallet , TimeoutError} from "@coinbase/coinbase-sdk";
+import {Coinbase, Wallet , TimeoutError} from "@coinbase/coinbase-sdk";
 import mongoose from 'mongoose';
 
 export async function POST(request: Request) {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     let seed = existingUser.mpcSensitive.seed
     let walletId = existingUser.mpcWalletId
     userWallet = await Wallet.import({ seed, walletId });
-    await userWallet.listAddresses();
+    // await userWallet.listAddresses();
     console.log(`checkout the userswalletss ${userWallet}`)
     console.log(`Checkout the userWallet=${userWallet} 0001`)
 
@@ -66,42 +66,51 @@ export async function POST(request: Request) {
     // Usdc
     // Weth
   
-    // const Coinbase = {
-    //   assets: {
-    //     Eth: 'Eth',
-    //     Wei: 'Wei',
-    //     Gwei: 'Gwei',
-    //     Usdc: 'Usdc',
-    //     Weth: 'Weth',
-    //   }
-    // };
+    const CoinbaseTypes = {
+      assets: {
+        Eth: 'eth',
+        Wei: 'wei',
+        Gwei: 'gwei',
+        usdc: 'usdc',
+        Weth: 'weth',
+        eurc: 'eurc',
+      },
+    };
     
-    // // Define a mapping function to resolve the asset based on the token name
-    // const getAssetFromToken = (token: string) => {
-    //   const assetMapping: { [key: string]: keyof typeof Coinbase.assets } = {
-    //     Eth: 'Eth',
-    //     Wei: 'Wei',
-    //     Gwei: 'Gwei',
-    //     Usdc: 'Usdc',
-    //     Weth: 'Weth'
-    //   };
+    // Define a mapping function to resolve the asset based on the token name (case-insensitive)
+    const getAssetFromToken = (token: string) => {
+      const assetMapping: { [key: string]: keyof typeof CoinbaseTypes.assets } = {
+        ETH: 'Eth',
+        WEI: 'Wei',
+        GWEI: 'Gwei',
+        USDC: 'usdc',
+        WETH: 'Weth',
+        EURC: 'eurc',
+      };
     
-    //   return Coinbase.assets[assetMapping[token]];
-    // }
+      return CoinbaseTypes.assets[assetMapping[token.toUpperCase()]];
+    };
 
-    // const fromAssetId = getAssetFromToken(body.fromToken);
-    // const toAssetId = getAssetFromToken(body.toToken);
+    const fromAssetId = getAssetFromToken(body.fromToken);
+    const toAssetId = getAssetFromToken(body.toToken);
 
-    console.log(Coinbase.assets.Eth, "check what Coinbase.assets.Eth has")
-    console.log(Coinbase.assets.Usdc, "check what Coinbase.assets.Usdc has")
+    console.log(fromAssetId, "check the fromassetId")
+    console.log(toAssetId, "check the toAssetId")
 
-    let trade = await (userWallet as any)?.createTrade({
-      amount: body.amount,
-      fromAssetId: Coinbase.assets.Usdc,
-      toAssetId:Coinbase.assets.Eth
-    });
+    let trade;
+    try{
+      trade = await (userWallet as any)?.createTrade({
+        amount: body.amount,
+        fromAssetId: fromAssetId,
+        toAssetId:toAssetId,
+        // gasless: true
+      });
+  
+    }catch(e){
+      console.log(e,"chek the error")
+    }
 
-    console.log(`Transfer successful: ${trade}`);
+    // console.log(`Transfer successful: ${trade}`);
     
     // // Return the transaction hash and link
     // trade.wait({ timeoutSeconds: 10000 }).then((t:any) => {
@@ -120,8 +129,8 @@ export async function POST(request: Request) {
 
     return (Response as any).json(
       {
-        transactionHash: trade?.getTransactionHash()?.substring(0, 10),
-        transactionLink: trade?.getTransactionLink(),
+        status: trade?.getStatus(),
+        to_amount: trade?.getToAmount()
       },
       { status: 200 }
     );
@@ -131,5 +140,5 @@ export async function POST(request: Request) {
   // }
 }
 
-export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+// export const dynamic = "force-dynamic";
+export const maxDuration = 300;

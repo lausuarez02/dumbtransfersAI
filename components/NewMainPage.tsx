@@ -412,77 +412,6 @@ const hash = await writeContract(config,{
             </button>
           </div>
         )}
-{/* <main className="flex-grow overflow-y-auto p-4 pb-20">
-  <div className="space-y-4">
-    {messages.map((message: any, index: any) => (
-      <div
-        key={index}
-        className={`flex items-start max-w-[80%] ${
-          message.isUser ? 'ml-auto flex-row-reverse' : 'mr-auto'
-        }`}
-      >
-        <div className="flex-shrink-0">
-          <Image
-            width={50}
-            height={50}
-            src={message.isUser ? '/person.png' : '/chat-bot.webp'}
-            alt={message.isUser ? 'User' : 'AI'}
-            className="rounded-full"
-          />
-        </div>
-
-        <div
-          className={`relative p-3 max-w-[70%] break-words ${
-            message.isUser
-              ? 'mr-2 bg-gray-200 bg-opacity-50 backdrop-blur-sm rounded-tl-lg rounded-br-lg rounded-bl-lg'
-              : 'ml-2 bg-[#004aad] bg-opacity-50 backdrop-blur-sm rounded-tr-lg rounded-bl-lg rounded-br-lg'
-          }`}
-        >
-          <div dangerouslySetInnerHTML={{ __html: message.text.text ? message.text.text : message.text }}></div>
-
-          {message.text.hasInput && (
-        <input 
-          type="text"
-          placeholder={message.text.translatedName || 'Name'}
-          onChange={(e) => setContactName(e.target.value)}
-          className="mt-2 px-3 py-2 border border-gray-300 rounded"
-        />
-      )}
-    {message.text.hasButtonName && (
-            <button 
-            disabled={isButtonDisabled}
-              onClick={() => handleUserResponse(contactName)}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              {message.text.translatedSend || 'Send'}
-            </button>
-          )}
-          {message.text.hasButton && (
-            <button 
-            disabled={isButtonDisabled}
-              onClick={() => handleUserResponse('yes')}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              {message.text.buttonTextYes || 'Yes'}
-            </button>
-          )}
-
-          {message.text.hasButton && (
-            <button 
-            disabled={isButtonDisabled}
-              onClick={() => handleUserResponse('no')}
-              className="mt-2 bg-red-500 text-white px-4 py-2 rounded ml-2"
-            >
-              {message.text.buttonTextNo || 'No'}
-            </button>
-          )}
-        </div>
-      </div>
-    ))}
-    {isLoading && <LoadingIcon />}
-  </div>
-  {isOpen && <FullScreenTopUpModal onClick={handleTopUp} amount={amountUsdc} handleChange={handleChange} isOpen={isOpen} toggleModal={toggleModal} />}
-</main> */}
 <main className="flex-grow overflow-y-auto p-4 pb-20">
   <div className="space-y-4">
     {messages.map((message: any, index: any) => (
@@ -563,7 +492,7 @@ const hash = await writeContract(config,{
 
 
         {/* Input Section */}
-        <footer className="p-4 border-t border-gray-300 bg-white">
+        {/* <footer className="p-4 border-t border-gray-300 bg-white">
           <form onSubmit={handleSubmit} className="flex gap-2 items-center">
             <button className="p-2 text-gray-500 hover:text-gray-700">
               <FaPaperclip size={18} />
@@ -587,7 +516,33 @@ const hash = await writeContract(config,{
               <Send size={18} />
             </button>
           </form>
-        </footer>
+        </footer> */}
+        <footer className="p-4 border-t border-gray-300 bg-white sticky bottom-0">
+  <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+    <button className="p-2 text-gray-500 hover:text-gray-700">
+      <FaPaperclip size={18} />
+    </button>
+    <button className="p-2 text-gray-500 hover:text-gray-700">
+      <FaSmile size={18} />
+    </button>
+    <input
+      type="text"
+      placeholder="Transfer..."
+      value={inputValue}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+        setInputValue(e.target.value)
+      }
+      className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+    />
+    <button
+      type="submit"
+      className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
+    >
+      <Send size={18} />
+    </button>
+  </form>
+</footer>
+
       </div>
     </div>
   );
