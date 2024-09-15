@@ -36,6 +36,8 @@ const DumbTransfersAIMainPage = () => {
   const [contactName, setContactName] = useState('')
   const [isButtonDisabled ,setIsButtonDisabled] = useState(false)
   const [mpcWallet, setMpcWallet] = useState('')
+  const [contacts, setContacts] = useState<any>('')
+  console.log(contacts, "check the contacts")
   // const { data: hash, writeContract} = useWriteContract()
   const account = useAccount();
 
@@ -53,6 +55,27 @@ const DumbTransfersAIMainPage = () => {
       setBalance(data.balance);
     } catch (err) {
       console.error('Error fetching balance:', err);
+    }
+  };
+
+  const fetchUserContacts = async (address: any) => {
+    try {
+      const response = await fetch(`/api/get-contacts?address=${encodeURIComponent(address)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch contacts');
+      }
+  
+      const data = await response.json();
+      console.log(data, 'check if I got data dude');
+      setContacts(data);
+    } catch (err) {
+      console.error('Error fetching contacts:', err);
     }
   };
 
@@ -182,9 +205,13 @@ const hash = await writeContract(config,{
     }
   }, [address]);
 
+
+
+
   useEffect(() => {
     if(mpcWallet !== ''){
       fetchMpcWalletBalance();
+      fetchUserContacts(mpcWallet)
     }
   }, [mpcWallet])
   
@@ -291,16 +318,14 @@ const hash = await writeContract(config,{
       >
         {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
       </button>
-          <button className="bg-[#004aad] text-white px-4 py-2 rounded-lg">
-            New Chat
-          </button>
         </div>
-        <h2 className="text-lg font-bold">Chats</h2>
-
+        <h2 className="text-lg font-bold">Contacts</h2>
         <ul className="space-y-4">
-          <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Andres</li>
-          <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Mom</li>
-          <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">Bills</li>
+          {contacts !== '' && contacts.map((contact:any) => {
+            return(
+              <li key={contact.name} className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">{contact.name}</li>
+            )
+          })}
         </ul>
         {/* Hide Sidebar Button for Desktop */}
         {/* <button
