@@ -278,15 +278,6 @@ const hash = await writeContract(config,{
 
   return (
     <div className="flex h-screen bg-white text-black">
-      {/* Left Sidebar for Previous Chats */}
-      {/* <button
-        onClick={toggleSidebar}
-        className="md:hidden bg-violet-500 text-white p-2 rounded-lg fixed top-4 right-4 z-50"
-      >
-        {isSidebarOpen ? 'Hide Chats' : 'Show Chats'}
-      </button> */}
-
-      {/* Left Sidebar for Previous Chats */}
       <aside
         className={`bg-gray-100 border-r border-gray-300 p-4 transform transition-transform duration-300 ease-in-out 
           w-64 fixed inset-y-0 left-0 z-40 md:relative md:translate-x-0 
@@ -323,67 +314,61 @@ const hash = await writeContract(config,{
 
       {/* Main Chat Area */}
       <div className={`flex-grow flex flex-col ${isSidebarOpen && 'md:ml-0'} transition-all`}>
-        <header className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
-          {/* Title Centered */}
-          <button
-        className="md:hidden top-4 left-4 z-30 bg-white text-white p-3 rounded-lg focus:outline-none"
-        onClick={toggleSidebar}
-      >
-        {isSidebarOpen ? <FaTimes size={24} /> : <FaBars color='blue' size={24} />}
-      </button>
-          <h1 className={`text-2xl font-bold bg-clip-text text-transparent bg-[#004aad] ${spaceGrotesk.className}`}>
-            DumbTransfers
-          </h1>
-          <div className="bg-white text-black">
-            {address ? (
-  <div className="relative flex items-center gap-2">
-    {/* Wallet Info Button */}
+  <header className="sticky top-0 z-50 p-4 bg-white border-b border-gray-300 flex justify-between items-center">
     <button
-      onClick={toggleDropdown}
-      className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
+      className="md:hidden top-4 left-4 z-30 bg-white text-white p-3 rounded-lg focus:outline-none"
+      onClick={toggleSidebar}
     >
-      Wallet
+      {isSidebarOpen ? <FaTimes size={24} /> : <FaBars color='blue' size={24} />}
     </button>
+    <h1 className={`text-2xl font-bold bg-clip-text text-transparent bg-[#004aad] ${spaceGrotesk.className}`}>
+      DumbTransfers
+    </h1>
+    <div className="bg-white text-black">
+      {address ? (
+        <div className="relative flex items-center gap-2">
+          <button
+            onClick={toggleDropdown}
+            className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
+          >
+            Wallet
+          </button>
 
-    {/* Dropdown Menu */}
-    {isDropdownOpen && (
-      <div className="absolute top-full mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-50 right-0">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm">Connected: {truncateAddress(address)}</span>
-          <ClipboardIcon
-            className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
-            onClick={() => copyToClipboard(address)}
-          />
+          {isDropdownOpen && (
+            <div className="absolute top-full mt-2 w-56 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-50 right-0">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm">Connected: {truncateAddress(address)}</span>
+                <ClipboardIcon
+                  className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
+                  onClick={() => copyToClipboard(address)}
+                />
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm">MPC address: {truncateAddress(mpcWallet)}</span>
+                <ClipboardIcon
+                  className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
+                  onClick={() => copyToClipboard(mpcWallet)}
+                />
+              </div>
+              <button
+                onClick={() => disconnect()}
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white w-full mt-4"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm">MPC address: {truncateAddress(mpcWallet)}</span>
-          <ClipboardIcon
-            className="w-5 h-5 cursor-pointer text-gray-500 hover:text-gray-700"
-            onClick={() => copyToClipboard(mpcWallet)}
-          />
-        </div>
-
-        {/* Logout Button at the Bottom */}
+      ) : (
         <button
-          onClick={() => disconnect()}
-          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white w-full mt-4"
+          onClick={() => connect({ connector: injected(), chainId: 8453 })}
+          className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
         >
-          Logout
+          Connect Wallet
         </button>
-      </div>
-    )}
-  </div>
-) : (
-  <button
-    onClick={() => connect({ connector: injected(), chainId: 8453 })}
-    className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
-  >
-    Connect Wallet
-  </button>
-)}
-
-          </div>
-        </header>
+      )}
+    </div>
+  </header>
 
         {/* Second Header */}
         {address && (
@@ -489,34 +474,6 @@ const hash = await writeContract(config,{
   </div>
   {isOpen && <FullScreenTopUpModal onClick={handleTopUp} amount={amountUsdc} handleChange={handleChange} isOpen={isOpen} toggleModal={toggleModal} />}
 </main>
-
-
-        {/* Input Section */}
-        {/* <footer className="p-4 border-t border-gray-300 bg-white">
-          <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-            <button className="p-2 text-gray-500 hover:text-gray-700">
-              <FaPaperclip size={18} />
-            </button>
-            <button className="p-2 text-gray-500 hover:text-gray-700">
-              <FaSmile size={18} />
-            </button>
-            <input
-              type="text"
-              placeholder="Transfer..."
-              value={inputValue}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setInputValue(e.target.value)
-              }
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-            <button
-              type="submit"
-              className="bg-[#004aad] px-4 py-2 rounded-lg text-white"
-            >
-              <Send size={18} />
-            </button>
-          </form>
-        </footer> */}
         <footer className="p-4 border-t border-gray-300 bg-white sticky bottom-0">
   <form onSubmit={handleSubmit} className="flex gap-2 items-center">
     <button className="p-2 text-gray-500 hover:text-gray-700">
