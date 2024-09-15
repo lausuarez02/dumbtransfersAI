@@ -323,7 +323,7 @@ const hash = await writeContract(config,{
         <ul className="space-y-4">
           {contacts !== '' && contacts.map((contact:any) => {
             return(
-              <li className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">{contact.name}</li>
+              <li key={contact.name} className="p-3 rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300">{contact.name}</li>
             )
           })}
         </ul>
