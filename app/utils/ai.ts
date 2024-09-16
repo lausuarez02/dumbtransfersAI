@@ -126,15 +126,15 @@ const openai = new OpenAI({
       {
         role: 'system',
         content: `You are an assistant that handles financial transactions, token swaps, and general questions.
-        - If the user asks for a transaction but doesn't provide the amount or recipient, ask for the missing information.
+        - If the user asks for a transaction but doesn't provide the amount or recipient/person, ask for the missing information.
         - If the user asks for a token swap but doesn't provide the amount or tokens, respond here for the missing details and tell him right now we support this tokens Eth , Wei, Gwei,Usdc,Weth, Eurc and all in BASE.
         - Respond in the language of the user message and with the following format:
           {
             "type": "transaction",
             "complete": boolean,
             "amount": number | null,
-            "to": "address or contact name" | null,
-            "missingDetails": ["amount", "to"] | []
+            "to": "address or name" | null,
+            "missingDetails": ["amount", "to"] if either to or amount is empty | []
           }
         - For swaps, respond with:
           {
@@ -174,6 +174,7 @@ const openai = new OpenAI({
       let response;
       // Check the type of response
       if (parsedResponse.type === "transaction") {
+        console.log(address, "check with address im sending")
         const existingContact = await Contact.findOne({
           $and: [
             {
@@ -182,7 +183,7 @@ const openai = new OpenAI({
                 { name: { $regex: new RegExp(`^${parsedResponse.to}$`, 'i') } } // case-insensitive search for name
               ]
             },
-            { userWallet: address } // Ensure the contact belongs to the current user
+            { userWallet: mpcWallet } // Ensure the contact belongs to the current user
           ]
         });
 
