@@ -16,3 +16,5 @@ export async function POST(request: Request) {
   // Return the response
   return new Response(JSON.stringify(response), { status: 200 });
 }
+
+export const maxDuration = 300;
