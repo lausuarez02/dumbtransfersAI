@@ -8,8 +8,8 @@ const openai = new OpenAI({
   async function generalAssistant(generalDetails: any, language: string) {
     const { answer } = generalDetails;
   
-    const translatedAnswer = await translateAssistant(answer, language);
-    return translatedAnswer;
+    // const translatedAnswer = await translateAssistant(answer, language);
+    return answer;
   }
 
   import mongoose from 'mongoose';
