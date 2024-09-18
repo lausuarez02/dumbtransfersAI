@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   // Retrieve the existing wallet using the wallet ID stored in the database
   let userWallet;
   let userWalletId;
-  try {
+  // try {
     let seed = existingUser.mpcSensitive.seed
     let walletId = existingUser.mpcWalletId
     userWallet = await Wallet.import({ seed, walletId });
@@ -53,9 +53,9 @@ export async function POST(request: Request) {
     console.log(`checkout the userswalletss ${userWallet}`)
     console.log(`Checkout the userWallet=${userWallet} 0001`)
 
-  } catch (e) {
-    return (Response as any).json({ message: "Failed to retrieve wallet" }, { status: 500 });
-  }
+  // } catch (e) {
+  //   return (Response as any).json({ message: "Failed to retrieve wallet" }, { status: 500 });
+  // }
 
   // try {    
     // await userWallet?.faucet();
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
   
     const CoinbaseTypes = {
       assets: {
-        Eth: 'eth',
+        eth: 'eth',
         Wei: 'wei',
         Gwei: 'gwei',
         usdc: 'usdc',
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     // Define a mapping function to resolve the asset based on the token name (case-insensitive)
     const getAssetFromToken = (token: string) => {
       const assetMapping: { [key: string]: keyof typeof CoinbaseTypes.assets } = {
-        ETH: 'Eth',
+        ETH: 'eth',
         WEI: 'Wei',
         GWEI: 'Gwei',
         USDC: 'usdc',
