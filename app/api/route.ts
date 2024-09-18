@@ -1,6 +1,34 @@
 import { Coinbase, Wallet, TimeoutError } from "@coinbase/coinbase-sdk";
 import mongoose from 'mongoose';
 
+const waitForTransferStatus = async (transfer: any, timeout: number, interval: number) => {
+  const start = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const checkStatus = async () => {
+      try {
+        const status = transfer.getSponsoredSend()?.getStatus();
+
+        console.log(`Current transfer status: ${status}`);
+
+        if (['complete', 'submitted', 'signed', 'pending'].includes(status)) {
+          return resolve(status); // Stop polling if we reach the desired status
+        }
+
+        if (Date.now() - start >= timeout) {
+          return reject(new Error("Timeout reached while waiting for transfer to complete"));
+        }
+
+        setTimeout(checkStatus, interval); // Poll at the specified interval
+      } catch (err) {
+        return reject(err);
+      }
+    };
+
+    checkStatus();
+  });
+};
+
 export async function POST(request: Request) {
   const { NAME, PRIVATE_KEY } = process.env;
 
@@ -47,7 +75,7 @@ export async function POST(request: Request) {
   // Retrieve the existing wallet using the wallet ID stored in the database
   let userWallet;
   let userWalletId;
-  try {
+  // try {
     let seed = existingUser.mpcSensitive.seed
     let walletId = existingUser.mpcWalletId
     userWallet = await Wallet.import({ seed, walletId });
@@ -55,9 +83,9 @@ export async function POST(request: Request) {
     console.log(`checkout the userswalletss ${userWallet}`)
     console.log(`Checkout the userWallet=${userWallet} 0001`)
 
-  } catch (e) {
-    return (Response as any).json({ message: "Failed to retrieve wallet" }, { status: 500 });
-  }
+  // } catch (e) {
+  //   return (Response as any).json({ message: "Failed to retrieve wallet" }, { status: 500 });
+  // }
 
   let transfer;
   try {
@@ -83,9 +111,12 @@ export async function POST(request: Request) {
       console.log("Waiting for transfer timed out");
     }
   }
+
+  await waitForTransferStatus(transfer, 10000, 1000); // 10 seconds timeout, 1-second intervals
+
   console.log(transfer, 'checkout the transfer final dude')
   // if (transfer.getStatus() === ('complete' || 'pending' || 'submitted' || 'signed' || 'broadcast') ) {
-    if (transfer.getSponsoredSend()?.getStatus() === ('complete' || 'submitted' || 'signed') ) {
+    if (['complete', 'submitted'].includes(transfer.getSponsoredSend()?.getStatus() as any) ) {
     return (Response as any).json(
       {
         transactionHash: transfer?.getSponsoredSend()?.getTransactionHash()?.substring(0, 10),

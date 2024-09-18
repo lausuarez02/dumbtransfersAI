@@ -134,7 +134,7 @@ const openai = new OpenAI({
             "complete": boolean,
             "amount": number | null,
             "to": "address or name" | null,
-            "missingDetails": ["amount", "to"] if either to or amount is empty | []
+            "missingDetails": ["amount", "to"] if either 'to' or 'amount' is empty | []
           }
         - For swaps, respond with:
           {
@@ -390,8 +390,8 @@ const openai = new OpenAI({
     }else{
       response = await fetchTradeData(address,fromToken, toToken , amount);
       console.log("check if its inside with response", response)
-      if(response.status === 'complete'){
-        return translateAssistant(
+      if (response.status === 'complete' || response.status === 'broadcast' || response.status === 'pending') {
+      return translateAssistant(
           `
           Swap of ${amount} USDC to Eurc was successful! 
           Status : ${response.status}
